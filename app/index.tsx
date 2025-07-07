@@ -64,7 +64,7 @@ export default function App() {
       {/* Deskripsi: Ini adalah komponen segitiga.
         Digunakan untuk menambahkan elemen visual yang menarik.
       */}
-      <TriangleShape color="mediumseagreen" size={120} label="" />
+      <TriangleShape color="mediumseagreen" size={120} />
 
       {/* Deskripsi: Komponen berbentuk tabung (pill).
         Digunakan untuk menampilkan Stambuk Mahasiswa.

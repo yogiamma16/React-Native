@@ -1,15 +1,14 @@
 import { StyleSheet, Text, View } from 'react-native';
 
 // --- Definisi Tipe (Interfaces) untuk Props Masing-Masing Komponen ---
-
 interface TriangleShapeProps {
   color: string;
   size: number;
-  label?: string; // label is optional
+  label?: string; 
 }
 
 interface PillShapeProps {
-  textContent: string;
+  studentId: string;
   pillColor: string;
   textColor: string;
 }
@@ -21,7 +20,6 @@ interface RectangleBoxProps {
 }
 
 // --- Komponen Segitiga Terpisah ---
-// Kita mendefinisikan tipe props menggunakan interface TriangleShapeProps
 const TriangleShape = ({ color, size, label }: TriangleShapeProps) => (
   <View
     style={[
@@ -34,22 +32,21 @@ const TriangleShape = ({ color, size, label }: TriangleShapeProps) => (
       },
     ]}
   >
-    {label && <Text style={styles.triangleLabel}>{label}</Text>}df
+    {label && <Text style={styles.triangleLabel}>{label}</Text>}
   </View>
 );
 
 // --- Komponen Tabung Terpisah ---
-// Kita mendefinisikan tipe props menggunakan interface PillShapeProps
-const PillShape = ({ textContent, pillColor, textColor }: PillShapeProps) => (
+// Mengubah nama prop dari textContent menjadi studentId
+const PillShape = ({ studentId, pillColor, textColor }: PillShapeProps) => (
   <View style={[styles.pillContainer, { backgroundColor: pillColor }]}>
     <Text style={[styles.pillText, { color: textColor }]}>
-      {textContent}
+      {studentId} {/* Menampilkan studentId */}
     </Text>
   </View>
 );
 
 // --- Komponen Persegi Panjang Terpisah ---
-// Kita mendefinisikan tipe props menggunakan interface RectangleBoxProps
 const RectangleBox = ({ name, boxColor, nameColor }: RectangleBoxProps) => (
   <View style={[styles.rectangleContainer, { backgroundColor: boxColor }]}>
     <Text style={[styles.rectangleText, { color: nameColor }]}>
@@ -58,28 +55,24 @@ const RectangleBox = ({ name, boxColor, nameColor }: RectangleBoxProps) => (
   </View>
 );
 
+// --- KOMPONEN UTAMA TEMPAT SEMUA BENTUK HARUS DIPANGGIL ---
 export default function App() {
   return (
     <View style={styles.mainContainer}>
-      {/* Deskripsi: Ini adalah komponen segitiga.
-        Digunakan untuk menambahkan elemen visual yang menarik.
-      */}
+      {/* 1. Komponen Segitiga */}
       <TriangleShape color="mediumseagreen" size={120} />
 
-      {/* Deskripsi: Komponen berbentuk tabung (pill).
-        Digunakan untuk menampilkan Stambuk Mahasiswa.
-      */}
+      {/* 2. Komponen Tabung (Pill)*/}
+      {/* Menggunakan prop studentId*/}
       <PillShape
-        textContent="105841108222"
+        studentId="105841108222" // Stambuk 
         pillColor="darkorchid"
         textColor="white"
       />
 
-      {/* Deskripsi: Komponen berbentuk persegi panjang.
-        Digunakan untuk menampilkan Nama Mahasiswa.
-      */}
+      {/* 3. Komponen Persegi Panjang */}
       <RectangleBox
-        name="YOGI A.AMMAH"
+        name="YOGI A.AMMAH" // Nama 
         boxColor="royalblue"
         nameColor="white"
       />

@@ -28,5 +28,3 @@ Proyek ini adalah implementasi dasar aplikasi React Native yang menampilkan tiga
     npx expo start
     ```
 4.  Pindai QR code dengan aplikasi Expo Go di perangkat mobile Anda, atau buka di simulator/emulator.
-
-## Struktur Proyek

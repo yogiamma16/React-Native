@@ -1,15 +1,6 @@
 # Tugas Lab Aplikasi Komputasi Bergerak
 
-## Deskripsi Proyek
-Proyek ini adalah implementasi dasar aplikasi React Native yang menampilkan tiga bentuk geometri utama: segitiga, tabung (pill), dan persegi panjang. Setiap bentuk dirancang untuk menampilkan informasi spesifik, yaitu nama dan stambuk mahasiswa. Proyek ini dibangun menggunakan Expo CLI.
 
-## Fitur
-- Menampilkan bentuk Segitiga dengan styling kustom.
-- Menampilkan bentuk Tabung (Pill) yang berisi Nomor Stambuk Mahasiswa.
-- Menampilkan bentuk Persegi Panjang yang berisi Nama Mahasiswa.
-- Struktur kode modular dengan komponen terpisah untuk setiap bentuk.
-- Penggunaan `StyleSheet.create` untuk styling yang terorganisir.
-- Efek bayangan sederhana untuk visual yang lebih menarik.
 
 ## Cara Menjalankan Proyek
 1.  **Clone Repository:**

@@ -1,100 +1,132 @@
-import React, { useState } from "react";
-import { Image, ScrollView, StyleSheet, Text, TouchableWithoutFeedback, View, } from "react-native";
+import React, { useCallback, useMemo, useState } from "react";
+import {
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableWithoutFeedback,
+  View,
+} from "react-native";
 
-const galleryImageDefinitions = [
-  { defaultAsset: require("../assets/images/gm1.png"), alternateAsset: require("../assets/images/gm10.png") },
-  { defaultAsset: require("../assets/images/gm2.png"), alternateAsset: require("../assets/images/gm11.png") },
-  { defaultAsset: require("../assets/images/gm3.png"), alternateAsset: require("../assets/images/gm12.png") },
-  { defaultAsset: require("../assets/images/gm4.png"), alternateAsset: require("../assets/images/gm13.png") },
-  { defaultAsset: require("../assets/images/gm5.png"), alternateAsset: require("../assets/images/gm14.png") },
-  { defaultAsset: require("../assets/images/gm6.png"), alternateAsset: require("../assets/images/gm15.png") },
-  { defaultAsset: require("../assets/images/gm7.png"), alternateAsset: require("../assets/images/gm16.png") },
-  { defaultAsset: require("../assets/images/gm8.png"), alternateAsset: require("../assets/images/gm17.png") },
-  { defaultAsset: require("../assets/images/gm9.png"), alternateAsset: require("../assets/images/gm18.png") },
+
+type VisualAssetEntry = {
+  initialAsset: any;
+  interactiveAsset: any;
+};
+
+const visualAssetCollection: VisualAssetEntry[] = [
+  { initialAsset: require("../assets/images/gm1.png"), interactiveAsset: require("../assets/images/gm10.png") },
+  { initialAsset: require("../assets/images/gm2.png"), interactiveAsset: require("../assets/images/gm11.png") },
+  { initialAsset: require("../assets/images/gm3.png"), interactiveAsset: require("../assets/images/gm12.png") },
+  { initialAsset: require("../assets/images/gm4.png"), interactiveAsset: require("../assets/images/gm13.png") },
+  { initialAsset: require("../assets/images/gm5.png"), interactiveAsset: require("../assets/images/gm14.png") },
+  { initialAsset: require("../assets/images/gm6.png"), interactiveAsset: require("../assets/images/gm15.png") },
+  { initialAsset: require("../assets/images/gm7.png"), interactiveAsset: require("../assets/images/gm16.png") },
+  { initialAsset: require("../assets/images/gm8.png"), interactiveAsset: require("../assets/images/gm17.png") },
+  { initialAsset: require("../assets/images/gm9.png"), interactiveAsset: require("../assets/images/gm18.png") },
 ];
 
-export default function MainAppDisplay() {
-  const initialInteractiveProps = galleryImageDefinitions.map(() => ({
-    displayAlternate: false,
-    currentVisualScale: 1.2,
-  }));
+// --- END: DEFINISI ASET & TIPE ---
 
-  const [interactiveImageProps, setInteractiveImageProps] = useState(initialInteractiveProps);
-  const [currentlySelectedImageIdx, setCurrentlySelectedImageIdx] = useState<number | null>(null);
 
-  const handleImageGridItemTap = (tappedIndex: number) => {
-    setInteractiveImageProps((previousProps) => {
-      return previousProps.map((itemProp, idx) => {
-        if (idx === tappedIndex) {
-          const newScaleVal = itemProp.currentVisualScale + 0.4;
-          return {
-            displayAlternate: true,
-            currentVisualScale: Math.min(newScaleVal, 2), 
-          };
+// --- START: KOMPONEN UTAMA ---
+
+export default function InteractiveVisualApp() { 
+
+ 
+  const initialDisplayProperties = useMemo(() => {
+    return visualAssetCollection.map((_, index) => ({
+      showInteractiveVersion: false, 
+      currentZoomLevel: 1.2,       
+      uniqueId: `asset-${index}`, 
+    }));
+  }, []); 
+
+  
+  const [assetDisplayStates, setAssetDisplayStates] = useState(initialDisplayProperties);
+  const [focusedAssetIndex, setFocusedAssetIndex] = useState<number | null>(null);
+
+
+  const handleVisualAssetInteraction = useCallback((touchedIndex: number) => { 
+    setAssetDisplayStates(prevStates => {
+      const newStates = [...prevStates]; 
+
+      newStates.forEach((item, idx) => {
+        if (idx === touchedIndex) {
+          const nextScale = item.currentZoomLevel + 0.4;
+          item.currentZoomLevel = Math.min(nextScale, 2.0); 
+          item.showInteractiveVersion = true;
         } else {
-          return {
-            displayAlternate: false,
-            currentVisualScale: 1.2, 
-          };
+          item.currentZoomLevel = 1.2;
+          item.showInteractiveVersion = false;
         }
       });
+      return newStates; 
     });
-    setCurrentlySelectedImageIdx(tappedIndex);
-  };
+    setFocusedAssetIndex(touchedIndex); 
+  }, []); 
 
-  const resetAllInteractions = () => {
-    setInteractiveImageProps(initialInteractiveProps);
-    setCurrentlySelectedImageIdx(null);
-  };
+  const resetAllVisualInteractions = useCallback(() => { 
+    setAssetDisplayStates(initialDisplayProperties); 
+    setFocusedAssetIndex(null); 
+  }, [initialDisplayProperties]); 
 
   return (
     <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-      <TouchableWithoutFeedback onPress={resetAllInteractions}>
-        <View style={visualStyles.mainScreenContainer}>
+      <TouchableWithoutFeedback onPress={resetAllVisualInteractions}>
+        <View style={visualComponentStyles.mainAppLayout}>
           
-          <View style={visualStyles.decorativeTriangleElement} />
+          {/* Elemen*/}
+          <View style={visualComponentStyles.topDecorativeSection} />
 
-          <View style={visualStyles.headerSection}>
-            <Text style={visualStyles.headerTextContent}>YOGI A.AMMAH</Text>
+          {/* Bagian header */}
+          <View style={visualComponentStyles.userInfoPanel}>
+            {/* NAMA*/}
+            <Text style={visualComponentStyles.userNameDisplay}>YOGI A.AMMAH</Text>
           </View>
 
-          <View style={visualStyles.idInformationBox}>
-            <Text style={visualStyles.idTextContent}>105841108222</Text>
+          {/* NIM */}
+          <View style={visualComponentStyles.userIdentifierBox}>
+            
+            <Text style={visualComponentStyles.identifierText}>105841108222</Text>
           </View>
 
-          <View style={visualStyles.profileImagesRow}>
-            <Image
-              source={{
-                uri: "https://uploads-us-west-2.insided.com/figma-en/attachment/7105e9c010b3d1f0ea893ed5ca3bd58e6cec090e.gif",
-              }}
-              style={visualStyles.profilePictureStyle}
-            />
+          {/* gambar profil */}
+          <View style={visualComponentStyles.profileGraphicsRow}>
             <Image
               source={{
                 uri: "https://simak.unismuh.ac.id/upload/mahasiswa/105841108222_.jpg?1752430940",
               }}
-              style={visualStyles.profilePictureStyle}
+              style={visualComponentStyles.profileGraphicUnit}
+            />
+            <Image
+              source={{
+                uri: "https://uploads-us-west-2.insided.com/figma-en/attachment/7105e9c010b3d1f0ea893ed5ca3bd58e6cec090e.gif",
+              }}
+              style={visualComponentStyles.profileGraphicUnit}
             />
           </View>
 
-          <View style={visualStyles.galleryGridContainer}>
-            {galleryImageDefinitions.map((imageDef, idx) => {
-              const isThisItemSelected = idx === currentlySelectedImageIdx;
+          <View style={visualComponentStyles.interactiveGridArea}>
+            {visualAssetCollection.map((assetDefinition, assetIndex) => {
+              const isCurrentAssetFocused = assetIndex === focusedAssetIndex;
+              const currentAssetProps = assetDisplayStates[assetIndex];
+
               return (
                 <TouchableWithoutFeedback
-                  key={idx}
-                  onPress={(event) => { 
-                    event.stopPropagation();
-                    handleImageGridItemTap(idx);
+                  key={assetIndex}
+                  onPress={(eventOrigin) => { 
+                    eventOrigin.stopPropagation();
+                    handleVisualAssetInteraction(assetIndex);
                   }}
                 >
-                  <View style={[visualStyles.gridImageWrapper, { zIndex: isThisItemSelected ? 1 : 0 }]}>
+                  <View style={[visualComponentStyles.gridDisplayElement, { zIndex: isCurrentAssetFocused ? 1 : 0 }]}>
                     <Image
-                      source={interactiveImageProps[idx].displayAlternate ? imageDef.alternateAsset : imageDef.defaultAsset}
-                      blurRadius={currentlySelectedImageIdx !== null && !isThisItemSelected ? 3 : 0}
+                      source={currentAssetProps.showInteractiveVersion ? assetDefinition.interactiveAsset : assetDefinition.initialAsset}
+                      blurRadius={focusedAssetIndex !== null && !isCurrentAssetFocused ? 4 : 0}
                       style={{
-                        ...visualStyles.gridImageStyle,
-                        transform: [{ scale: interactiveImageProps[idx].currentVisualScale }],
+                        ...visualComponentStyles.gridImageContent,
+                        transform: [{ scale: currentAssetProps.currentZoomLevel }],
                       }}
                     />
                   </View>
@@ -108,69 +140,70 @@ export default function MainAppDisplay() {
   );
 }
 
-const visualStyles = StyleSheet.create({
-  mainScreenContainer: {
+
+const visualComponentStyles = StyleSheet.create({
+  mainAppLayout: { 
     flex: 1,
     alignItems: "center",
   },
-  decorativeTriangleElement: {
-    width: 1, height: 1, backgroundColor: "transparent", borderStyle: "solid",
-    borderLeftWidth: 51, borderRightWidth: 51, borderBottomWidth: 101,
+  topDecorativeSection: { 
+    width: 0, height: 0, backgroundColor: "transparent", borderStyle: "solid",
+    borderLeftWidth: 50, borderRightWidth: 50, borderBottomWidth: 100,
     borderLeftColor: "transparent", borderRightColor: "transparent",
-    borderBottomColor: "#5cb5e9", marginBottom: 31,
+    borderBottomColor: "#FF5733", marginBottom: 30,
   },
-  headerSection: {
-    width: 201, height: 61, backgroundColor: "#a5bfc0", justifyContent: "center",
-    alignItems: "center", borderRadius: 2, marginBottom: 31, paddingHorizontal: 14,
+  userInfoPanel: {
+    width: 200, height: 60, backgroundColor: "#3498db", justifyContent: "center",
+    alignItems: "center", borderRadius: 3, marginBottom: 30, paddingHorizontal: 15,
   },
-  headerTextContent: {
-    fontSize: 21, 
+  userNameDisplay: {
+    fontSize: 20, 
     fontWeight: "bold", 
     color: "white", 
     textAlign: "center",
   },
-  idInformationBox: {
-    width: 251, 
-    height: 51, 
-    backgroundColor: "#73dba0", 
+  userIdentifierBox: {
+    width: 250, 
+    height: 50, 
+    backgroundColor: "#2ecc71", 
     justifyContent: "center",
     alignItems: "center", 
-    borderRadius: 21, 
-    paddingHorizontal: 21,
+    borderRadius: 25, 
+    paddingHorizontal: 20,
   },
-  idTextContent: {
-    fontSize: 21, fontWeight: "bold", color: "white", textAlign: "center" 
+  identifierText: { 
+    fontSize: 20, fontWeight: "bold", color: "white", textAlign: "center" 
   },
-  profileImagesRow: {
+  profileGraphicsRow: { 
     flexDirection: "row",
-    marginTop: 21,
-    marginBottom: 21,
+    marginTop: 20,
+    marginBottom: 20,
   },
-  profilePictureStyle: {
-    width: 201,
-    height: 201,
-    marginHorizontal: 4,
+  profileGraphicUnit: { 
+    width: 200,
+    height: 200,
+    marginHorizontal: 5,
   },
-  galleryGridContainer: {
-    marginTop: 29,
+  interactiveGridArea: { 
+    marginTop: 30,
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "center",
-    paddingBottom: 2,
-    width: 501,
+    paddingBottom: 1,
+    width: 500,
     paddingHorizontal: 10,
   },
-  gridImageWrapper: {
-    width: "29%", 
+  gridDisplayElement: { 
+    width: "30%", 
     aspectRatio: 1, 
-    margin: 3,
-    paddingBottom: 4,
+    margin: 2,
+    paddingBottom: 2,
     alignItems: "center",
     justifyContent: "center",
   },
-  gridImageStyle: {
-    width: 119,
-    height: 119,
+  gridImageContent: { 
+    width: 120,
+    height: 120,
     borderRadius: 10,
   },
 });

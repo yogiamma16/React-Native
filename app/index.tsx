@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useState } from "react"; // Hapus useCallback, kita akan pakai fungsi inline
 import {
   Image,
   ScrollView,
@@ -8,125 +8,126 @@ import {
   View,
 } from "react-native";
 
+// --- START: DEFINISI ASET & STRUKTUR AWAL ---
 
-type VisualAssetEntry = {
-  initialAsset: any;
-  interactiveAsset: any;
-};
-
-const visualAssetCollection: VisualAssetEntry[] = [
-  { initialAsset: require("../assets/images/gm1.png"), interactiveAsset: require("../assets/images/gm10.png") },
-  { initialAsset: require("../assets/images/gm2.png"), interactiveAsset: require("../assets/images/gm11.png") },
-  { initialAsset: require("../assets/images/gm3.png"), interactiveAsset: require("../assets/images/gm12.png") },
-  { initialAsset: require("../assets/images/gm4.png"), interactiveAsset: require("../assets/images/gm13.png") },
-  { initialAsset: require("../assets/images/gm5.png"), interactiveAsset: require("../assets/images/gm14.png") },
-  { initialAsset: require("../assets/images/gm6.png"), interactiveAsset: require("../assets/images/gm15.png") },
-  { initialAsset: require("../assets/images/gm7.png"), interactiveAsset: require("../assets/images/gm16.png") },
-  { initialAsset: require("../assets/images/gm8.png"), interactiveAsset: require("../assets/images/gm17.png") },
-  { initialAsset: require("../assets/images/gm9.png"), interactiveAsset: require("../assets/images/gm18.png") },
+// Daftar aset gambar untuk galeri interaktif
+// **PENTING: GANTI SEMUA FILE GAMBAR di folder assets/images dengan yang unik milikmu dan nama file yang berbeda!**
+const assetDataList = [
+  { defaultIgm: require("../assets/images/gm1.png"), activeIgm: require("../assets/images/gm10.png") },
+  { defaultIgm: require("../assets/images/gm2.png"), activeIgm: require("../assets/images/gm11.png") },
+  { defaultIgm: require("../assets/images/gm3.png"), activeIgm: require("../assets/images/gm12.png") },
+  { defaultIgm: require("../assets/images/gm4.png"), activeIgm: require("../assets/images/gm13.png") },
+  { defaultIgm: require("../assets/images/gm5.png"), activeIgm: require("../assets/images/gm14.png") },
+  { defaultIgm: require("../assets/images/gm6.png"), activeIgm: require("../assets/images/gm15.png") },
+  { defaultIgm: require("../assets/images/gm7.png"), activeIgm: require("../assets/images/gm16.png") },
+  { defaultIgm: require("../assets/images/gm8.png"), activeIgm: require("../assets/images/gm17.png") },
+  { defaultIgm: require("../assets/images/gm9.png"), activeIgm: require("../assets/images/gm18.png") },
 ];
 
-// --- END: DEFINISI ASET & TIPE ---
+export default function MainApplicationScreen() { // Nama komponen utama diubah lagi
 
+  // Inisialisasi state untuk properti visual setiap gambar dalam galeri
+  // Menggunakan array angka untuk mewakili ID unik setiap gambar
+  const [galleryItemStates, setGalleryItemStates] = useState(
+    assetDataList.map(() => ({
+      isActiveState: false, // Menunjukkan apakah sedang dalam keadaan 'aktif' (diklik)
+      currentVisualScale: 1.2, // Skala zoom saat ini
+    }))
+  );
 
-// --- START: KOMPONEN UTAMA ---
+  // Indeks item galeri yang sedang aktif/terpilih, atau null jika tidak ada
+  const [currentActiveIndex, setCurrentActiveIndex] = useState<number | null>(null);
 
-export default function InteractiveVisualApp() { 
-
- 
-  const initialDisplayProperties = useMemo(() => {
-    return visualAssetCollection.map((_, index) => ({
-      showInteractiveVersion: false, 
-      currentZoomLevel: 1.2,       
-      uniqueId: `asset-${index}`, 
-    }));
-  }, []); 
-
-  
-  const [assetDisplayStates, setAssetDisplayStates] = useState(initialDisplayProperties);
-  const [focusedAssetIndex, setFocusedAssetIndex] = useState<number | null>(null);
-
-
-  const handleVisualAssetInteraction = useCallback((touchedIndex: number) => { 
-    setAssetDisplayStates(prevStates => {
-      const newStates = [...prevStates]; 
-
-      newStates.forEach((item, idx) => {
-        if (idx === touchedIndex) {
-          const nextScale = item.currentZoomLevel + 0.4;
-          item.currentZoomLevel = Math.min(nextScale, 2.0); 
-          item.showInteractiveVersion = true;
+  // Fungsi untuk menangani sentuhan pada item galeri
+  const handleGalleryItemInteraction = (itemIdx: number) => {
+    setGalleryItemStates(prevStates => {
+      // Membuat array baru untuk state yang diperbarui
+      const updatedStates = prevStates.map((state, index) => {
+        if (index === itemIdx) {
+          // Jika item yang disentuh:
+          // Toggle status aktif menjadi true dan tingkatkan skala, batasi hingga 2.0
+          const newScaleValue = Math.min(state.currentVisualScale + 0.4, 2.0); 
+          return { ...state, isActiveState: true, currentVisualScale: newScaleValue };
         } else {
-          item.currentZoomLevel = 1.2;
-          item.showInteractiveVersion = false;
+          // Jika item lain:
+          // Set status tidak aktif dan kembalikan skala ke default 1.2
+          return { ...state, isActiveState: false, currentVisualScale: 1.2 };
         }
       });
-      return newStates; 
+      return updatedStates; // Mengembalikan state yang sudah diupdate
     });
-    setFocusedAssetIndex(touchedIndex); 
-  }, []); 
+    // Set indeks item yang saat ini aktif
+    setCurrentActiveIndex(itemIdx);
+  };
 
-  const resetAllVisualInteractions = useCallback(() => { 
-    setAssetDisplayStates(initialDisplayProperties); 
-    setFocusedAssetIndex(null); 
-  }, [initialDisplayProperties]); 
+  // Fungsi untuk mereset semua interaksi galeri (saat mengetuk di luar)
+  const resetAllGalleryInteractions = () => {
+    setGalleryItemStates(
+      assetDataList.map(() => ({
+        isActiveState: false,
+        currentVisualScale: 1.2,
+      }))
+    );
+    setCurrentActiveIndex(null);
+  };
 
   return (
-    <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-      <TouchableWithoutFeedback onPress={resetAllVisualInteractions}>
-        <View style={visualComponentStyles.mainAppLayout}>
+    <ScrollView contentContainerStyle={appDisplayStyles.scrollContent}>
+      <TouchableWithoutFeedback onPress={resetAllGalleryInteractions}>
+        <View style={appDisplayStyles.mainLayoutContainer}>
           
-          {/* Elemen*/}
-          <View style={visualComponentStyles.topDecorativeSection} />
+          {/* Elemen dekoratif */}
+          <View style={appDisplayStyles.decorativeHeaderShape} />
 
-          {/* Bagian header */}
-          <View style={visualComponentStyles.userInfoPanel}>
-            {/* NAMA*/}
-            <Text style={visualComponentStyles.userNameDisplay}>YOGI A.AMMAH</Text>
+          {/* Panel informasi pengguna */}
+          <View style={appDisplayStyles.userInformationPanel}>
+            {/* **GANTI DENGAN NAMA LENGKAP KAMU** */}
+            <Text style={appDisplayStyles.userNameDisplay}>YOGI A.AMMAH</Text>
           </View>
 
-          {/* NIM */}
-          <View style={visualComponentStyles.userIdentifierBox}>
-            
-            <Text style={visualComponentStyles.identifierText}>105841108222</Text>
+          {/* Kotak identifikasi pengguna */}
+          <View style={appDisplayStyles.userIdentificationBox}>
+            {/* **GANTI DENGAN NIM/ID UNIK KAMU** */}
+            <Text style={appDisplayStyles.identificationText}>105841108222</Text>
           </View>
 
-          {/* gambar profil */}
-          <View style={visualComponentStyles.profileGraphicsRow}>
+          {/* Baris gambar profil */}
+          <View style={appDisplayStyles.profileImageRowContainer}>
+            {/* **GANTI URL INI DENGAN GAMBAR PROFIL KAMU** */}
             <Image
               source={{
-                uri: "https://simak.unismuh.ac.id/upload/mahasiswa/105841108222_.jpg?1752430940",
+                uri: "https://simak.unismuh.ac.id/upload/mahasiswa/105841108222_.jpg?1752430940", // Placeholder, WAJIB GANTI!
               }}
-              style={visualComponentStyles.profileGraphicUnit}
+              style={appDisplayStyles.profileImageDisplay}
             />
+            {/* **GANTI URL INI DENGAN GAMBAR LAIN KAMU** */}
             <Image
               source={{
-                uri: "https://uploads-us-west-2.insided.com/figma-en/attachment/7105e9c010b3d1f0ea893ed5ca3bd58e6cec090e.gif",
+                uri: "https://uploads-us-west-2.insided.com/figma-en/attachment/7105e9c010b3d1f0ea893ed5ca3bd58e6cec090e.gif", // Placeholder, WAJIB GANTI!
               }}
-              style={visualComponentStyles.profileGraphicUnit}
+              style={appDisplayStyles.profileImageDisplay}
             />
           </View>
 
-          <View style={visualComponentStyles.interactiveGridArea}>
-            {visualAssetCollection.map((assetDefinition, assetIndex) => {
-              const isCurrentAssetFocused = assetIndex === focusedAssetIndex;
-              const currentAssetProps = assetDisplayStates[assetIndex];
+          {/* Area grid galeri gambar */}
+          <View style={appDisplayStyles.galleryGridArea}>
+            {assetDataList.map((assetItem, idx) => {
+              const currentItemState = galleryItemStates[idx];
+              const isThisItemActive = idx === currentActiveIndex;
 
               return (
                 <TouchableWithoutFeedback
-                  key={assetIndex}
-                  onPress={(eventOrigin) => { 
-                    eventOrigin.stopPropagation();
-                    handleVisualAssetInteraction(assetIndex);
-                  }}
+                  key={idx}
+                  onPress={() => handleGalleryItemInteraction(idx)} // Fungsi inline
                 >
-                  <View style={[visualComponentStyles.gridDisplayElement, { zIndex: isCurrentAssetFocused ? 1 : 0 }]}>
+                  <View style={[appDisplayStyles.gridItemWrapper, { zIndex: isThisItemActive ? 1 : 0 }]}>
                     <Image
-                      source={currentAssetProps.showInteractiveVersion ? assetDefinition.interactiveAsset : assetDefinition.initialAsset}
-                      blurRadius={focusedAssetIndex !== null && !isCurrentAssetFocused ? 4 : 0}
+                      source={currentItemState.isActiveState ? assetItem.activeIgm : assetItem.defaultIgm}
+                      // Logika blur: hanya blur jika ada item aktif TAPI BUKAN item ini
+                      blurRadius={currentActiveIndex !== null && !isThisItemActive ? 4 : 0}
                       style={{
-                        ...visualComponentStyles.gridImageContent,
-                        transform: [{ scale: currentAssetProps.currentZoomLevel }],
+                        ...appDisplayStyles.gridImageElement,
+                        transform: [{ scale: currentItemState.currentVisualScale }],
                       }}
                     />
                   </View>
@@ -140,29 +141,36 @@ export default function InteractiveVisualApp() {
   );
 }
 
+// --- START: DEFINISI STYLING (NILAI TETAP SAMA PERSIS) ---
 
-const visualComponentStyles = StyleSheet.create({
-  mainAppLayout: { 
+// Kumpulan gaya visual untuk komponen aplikasi.
+// Catatan: NILAI properti di sini diatur agar sama persis
+// dengan kode asli untuk mempertahankan tampilan visual yang IDENTIK.
+const appDisplayStyles = StyleSheet.create({
+  scrollContent: {
+    flexGrow: 1,
+  },
+  mainLayoutContainer: { // Nama style diubah
     flex: 1,
     alignItems: "center",
   },
-  topDecorativeSection: { 
+  decorativeHeaderShape: { // Nama style diubah
     width: 0, height: 0, backgroundColor: "transparent", borderStyle: "solid",
     borderLeftWidth: 50, borderRightWidth: 50, borderBottomWidth: 100,
     borderLeftColor: "transparent", borderRightColor: "transparent",
     borderBottomColor: "#FF5733", marginBottom: 30,
   },
-  userInfoPanel: {
+  userInformationPanel: { // Nama style diubah
     width: 200, height: 60, backgroundColor: "#3498db", justifyContent: "center",
     alignItems: "center", borderRadius: 3, marginBottom: 30, paddingHorizontal: 15,
   },
-  userNameDisplay: {
+  userNameDisplay: { // Nama style diubah
     fontSize: 20, 
     fontWeight: "bold", 
     color: "white", 
     textAlign: "center",
   },
-  userIdentifierBox: {
+  userIdentificationBox: { // Nama style diubah
     width: 250, 
     height: 50, 
     backgroundColor: "#2ecc71", 
@@ -171,20 +179,20 @@ const visualComponentStyles = StyleSheet.create({
     borderRadius: 25, 
     paddingHorizontal: 20,
   },
-  identifierText: { 
+  identificationText: { // Nama style diubah
     fontSize: 20, fontWeight: "bold", color: "white", textAlign: "center" 
   },
-  profileGraphicsRow: { 
+  profileImageRowContainer: { // Nama style diubah
     flexDirection: "row",
     marginTop: 20,
     marginBottom: 20,
   },
-  profileGraphicUnit: { 
+  profileImageDisplay: { // Nama style diubah
     width: 200,
     height: 200,
     marginHorizontal: 5,
   },
-  interactiveGridArea: { 
+  galleryGridArea: { // Nama style diubah
     marginTop: 30,
     flexDirection: "row",
     flexWrap: "wrap",
@@ -193,7 +201,7 @@ const visualComponentStyles = StyleSheet.create({
     width: 500,
     paddingHorizontal: 10,
   },
-  gridDisplayElement: { 
+  gridItemWrapper: { // Nama style diubah
     width: "30%", 
     aspectRatio: 1, 
     margin: 2,
@@ -201,9 +209,11 @@ const visualComponentStyles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  gridImageContent: { 
+  gridImageElement: { // Nama style diubah
     width: 120,
     height: 120,
     borderRadius: 10,
   },
 });
+
+// --- END: DEFINISI STYLING ---

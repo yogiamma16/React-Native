@@ -1,118 +1,101 @@
-import React, { useCallback, useState } from "react";
-import {
-  Image,
-  ImageSourcePropType,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableWithoutFeedback,
-  View,
-} from "react-native";
+import React, { useState } from "react";
+import { Image, ScrollView, StyleSheet, Text, TouchableWithoutFeedback, View, } from "react-native";
 
-interface CelestialObjectState {
-  isScanned: boolean;
-  zoomFactor: number;
-}
-
-interface CelestialData {
-  mapImage: ImageSourcePropType;
-  revealedImage: ImageSourcePropType;
-}
-
-const galaxyMap: CelestialData[] = [
-  { mapImage: require("../assets/images/gm1.png"), revealedImage: require("../assets/images/gm10.png") },
-  { mapImage: require("../assets/images/gm2.png"), revealedImage: require("../assets/images/gm11.png") },
-  { mapImage: require("../assets/images/gm3.png"), revealedImage: require("../assets/images/gm12.png") },
-  { mapImage: require("../assets/images/gm4.png"), revealedImage: require("../assets/images/gm13.png") },
-  { mapImage: require("../assets/images/gm5.png"), revealedImage: require("../assets/images/gm14.png") },
-  { mapImage: require("../assets/images/gm6.png"), revealedImage: require("../assets/images/gm15.png") },
-  { mapImage: require("../assets/images/gm7.png"), revealedImage: require("../assets/images/gm16.png") },
-  { mapImage: require("../assets/images/gm8.png"), revealedImage: require("../assets/images/gm17.png") },
-  { mapImage: require("../assets/images/gm9.png"), revealedImage: require("../assets/images/gm18.png") },
+const galleryImageDefinitions = [
+  { defaultAsset: require("../assets/images/gm1.png"), alternateAsset: require("../assets/images/gm10.png") },
+  { defaultAsset: require("../assets/images/gm2.png"), alternateAsset: require("../assets/images/gm11.png") },
+  { defaultAsset: require("../assets/images/gm3.png"), alternateAsset: require("../assets/images/gm12.png") },
+  { defaultAsset: require("../assets/images/gm4.png"), alternateAsset: require("../assets/images/gm13.png") },
+  { defaultAsset: require("../assets/images/gm5.png"), alternateAsset: require("../assets/images/gm14.png") },
+  { defaultAsset: require("../assets/images/gm6.png"), alternateAsset: require("../assets/images/gm15.png") },
+  { defaultAsset: require("../assets/images/gm7.png"), alternateAsset: require("../assets/images/gm16.png") },
+  { defaultAsset: require("../assets/images/gm8.png"), alternateAsset: require("../assets/images/gm17.png") },
+  { defaultAsset: require("../assets/images/gm9.png"), alternateAsset: require("../assets/images/gm18.png") },
 ];
 
-
-const generateInitialSystemState = (): CelestialObjectState[] =>
-  galaxyMap.map(() => ({
-    isScanned: false,
-    zoomFactor: 1.2,
+export default function MainAppDisplay() {
+  const initialInteractiveProps = galleryImageDefinitions.map(() => ({
+    displayAlternate: false,
+    currentVisualScale: 1.2,
   }));
 
-const ProfileInfoBlock = () => (
-  <>
-    <View style={sty.nm} />
-    <View style={sty.nv}>
-      <Text style={sty.nameplateText}>YOGI A.AMMAH</Text>
-    </View>
-    <View style={sty.pv}>
-      <Text style={sty.pt}>105841108222</Text>
-    </View>
-    <View style={sty.ps}>
-      <Image
-        source={{ uri: "https://simak.unismuh.ac.id/upload/mahasiswa/105841108222_.jpg?1752430940" }}
-        style={sty.ft}
-      />
-      <Image
-        source={{ uri: "https://uploads-us-west-2.insided.com/figma-en/attachment/7105e9c010b3d1f0ea893ed5ca3bd58e6cec090e.gif" }}
-        style={sty.ft}
-      />
-    </View>
-  </>
-);
+  const [interactiveImageProps, setInteractiveImageProps] = useState(initialInteractiveProps);
+  const [currentlySelectedImageIdx, setCurrentlySelectedImageIdx] = useState<number | null>(null);
 
-export default function MainScreen() {
-  const [focusedObjectIndex, setFocusedObjectIndex] = useState<number | null>(null);
-  const [systemState, setSystemState] = useState<CelestialObjectState[]>(generateInitialSystemState());
-
-  const handleObjectSelection = useCallback((selectedIndex: number) => {
-    setSystemState(currentState =>
-      currentState.map((object, index) => {
-        if (index === selectedIndex) {
-          const newZoom = (object.zoomFactor || 1.2) + 0.4;
-          return { 
-            isScanned: !object.isScanned, 
-            zoomFactor: newZoom > 2 ? 2 : newZoom 
+  const handleImageGridItemTap = (tappedIndex: number) => {
+    setInteractiveImageProps((previousProps) => {
+      return previousProps.map((itemProp, idx) => {
+        if (idx === tappedIndex) {
+          const newScaleVal = itemProp.currentVisualScale + 0.4;
+          return {
+            displayAlternate: true,
+            currentVisualScale: Math.min(newScaleVal, 2), 
+          };
+        } else {
+          return {
+            displayAlternate: false,
+            currentVisualScale: 1.2, 
           };
         }
-        return { isScanned: false, zoomFactor: 1.2 };
-      })
-    );
-    setFocusedObjectIndex(selectedIndex);
-  }, []);
+      });
+    });
+    setCurrentlySelectedImageIdx(tappedIndex);
+  };
 
-  const clearFocus = useCallback(() => {
-    setFocusedObjectIndex(null);
-    setSystemState(generateInitialSystemState());
-  }, []);
+  const resetAllInteractions = () => {
+    setInteractiveImageProps(initialInteractiveProps);
+    setCurrentlySelectedImageIdx(null);
+  };
 
   return (
     <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-      <TouchableWithoutFeedback onPress={clearFocus}>
-        <View style={sty.screenContainer}>
-          <ProfileInfoBlock />
+      <TouchableWithoutFeedback onPress={resetAllInteractions}>
+        <View style={visualStyles.mainScreenContainer}>
           
-          <View style={sty.artworkGridContainer}>
-            {galaxyMap.map((celestial, index) => {
-              const isFocused = index === focusedObjectIndex;
-              const isAnotherObjectFocused = focusedObjectIndex !== null && !isFocused;
-              const objectState = systemState[index];
+          <View style={visualStyles.decorativeTriangleElement} />
 
+          <View style={visualStyles.headerSection}>
+            <Text style={visualStyles.headerTextContent}>YOGI A.AMMAH</Text>
+          </View>
+
+          <View style={visualStyles.idInformationBox}>
+            <Text style={visualStyles.idTextContent}>105841108222</Text>
+          </View>
+
+          <View style={visualStyles.profileImagesRow}>
+            <Image
+              source={{
+                uri: "https://uploads-us-west-2.insided.com/figma-en/attachment/7105e9c010b3d1f0ea893ed5ca3bd58e6cec090e.gif",
+              }}
+              style={visualStyles.profilePictureStyle}
+            />
+            <Image
+              source={{
+                uri: "https://simak.unismuh.ac.id/upload/mahasiswa/105841108222_.jpg?1752430940",
+              }}
+              style={visualStyles.profilePictureStyle}
+            />
+          </View>
+
+          <View style={visualStyles.galleryGridContainer}>
+            {galleryImageDefinitions.map((imageDef, idx) => {
+              const isThisItemSelected = idx === currentlySelectedImageIdx;
               return (
                 <TouchableWithoutFeedback
-                  key={index}
-                  onPress={(e) => {
-                    e.stopPropagation(); 
-                    handleObjectSelection(index);
+                  key={idx}
+                  onPress={(event) => { 
+                    event.stopPropagation();
+                    handleImageGridItemTap(idx);
                   }}
                 >
-                  <View style={[sty.artworkWrapper, { zIndex: isFocused ? 1 : 0 }]}>
+                  <View style={[visualStyles.gridImageWrapper, { zIndex: isThisItemSelected ? 1 : 0 }]}>
                     <Image
-                      source={objectState.isScanned ? celestial.revealedImage : celestial.mapImage}
-                      blurRadius={isAnotherObjectFocused ? 1 : 0}
-                      style={[
-                        sty.artworkImage,
-                        { transform: [{ scale: objectState.zoomFactor }] },
-                      ]}
+                      source={interactiveImageProps[idx].displayAlternate ? imageDef.alternateAsset : imageDef.defaultAsset}
+                      blurRadius={currentlySelectedImageIdx !== null && !isThisItemSelected ? 3 : 0}
+                      style={{
+                        ...visualStyles.gridImageStyle,
+                        transform: [{ scale: interactiveImageProps[idx].currentVisualScale }],
+                      }}
                     />
                   </View>
                 </TouchableWithoutFeedback>
@@ -124,33 +107,70 @@ export default function MainScreen() {
     </ScrollView>
   );
 }
-const sty = StyleSheet.create({
-  screenContainer: { flex: 1, alignItems: "center" },
-  nm: {
-    width: 0, height: 0, backgroundColor: "transparent", borderStyle: "solid",
-    borderLeftWidth: 50, borderRightWidth: 50, borderBottomWidth: 100,
+
+const visualStyles = StyleSheet.create({
+  mainScreenContainer: {
+    flex: 1,
+    alignItems: "center",
+  },
+  decorativeTriangleElement: {
+    width: 1, height: 1, backgroundColor: "transparent", borderStyle: "solid",
+    borderLeftWidth: 51, borderRightWidth: 51, borderBottomWidth: 101,
     borderLeftColor: "transparent", borderRightColor: "transparent",
-    borderBottomColor: "#FF5733", marginBottom: 30,
+    borderBottomColor: "#5cb5e9", marginBottom: 31,
   },
-  nv: {
-    width: 200, height: 60, backgroundColor: "#3498db", justifyContent: "center",
-    alignItems: "center", borderRadius: 3, marginBottom: 30, paddingHorizontal: 15,
+  headerSection: {
+    width: 201, height: 61, backgroundColor: "#a5bfc0", justifyContent: "center",
+    alignItems: "center", borderRadius: 2, marginBottom: 31, paddingHorizontal: 14,
   },
-  nameplateText: { fontSize: 20, fontWeight: "bold", color: "white", textAlign: "center" },
-  pv: {
-    width: 250, height: 50, backgroundColor: "#2ecc71", justifyContent: "center",
-    alignItems: "center", borderRadius: 25, paddingHorizontal: 20,
+  headerTextContent: {
+    fontSize: 21, 
+    fontWeight: "bold", 
+    color: "white", 
+    textAlign: "center",
   },
-  pt: { fontSize: 20, fontWeight: "bold", color: "white", textAlign: "center" },
-  ps: { flexDirection: "row", marginTop: 20, marginBottom: 20 },
-  ft: { width: 200, height: 200, marginHorizontal: 5, borderRadius: 15, },
-  artworkGridContainer: {
-    marginTop: 30, flexDirection: "row", flexWrap: "wrap",
-    justifyContent: "center", paddingBottom: 1, width: 500, paddingHorizontal: 10,
+  idInformationBox: {
+    width: 251, 
+    height: 51, 
+    backgroundColor: "#73dba0", 
+    justifyContent: "center",
+    alignItems: "center", 
+    borderRadius: 21, 
+    paddingHorizontal: 21,
   },
-  artworkWrapper: {
-    width: "30%", aspectRatio: 1, margin: 2, paddingBottom: 2,
-    alignItems: "center", justifyContent: "center",
+  idTextContent: {
+    fontSize: 21, fontWeight: "bold", color: "white", textAlign: "center" 
   },
-  artworkImage: { width: 120, height: 120, borderRadius: 10 },
+  profileImagesRow: {
+    flexDirection: "row",
+    marginTop: 21,
+    marginBottom: 21,
+  },
+  profilePictureStyle: {
+    width: 201,
+    height: 201,
+    marginHorizontal: 4,
+  },
+  galleryGridContainer: {
+    marginTop: 29,
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "center",
+    paddingBottom: 2,
+    width: 501,
+    paddingHorizontal: 10,
+  },
+  gridImageWrapper: {
+    width: "29%", 
+    aspectRatio: 1, 
+    margin: 3,
+    paddingBottom: 4,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  gridImageStyle: {
+    width: 119,
+    height: 119,
+    borderRadius: 10,
+  },
 });

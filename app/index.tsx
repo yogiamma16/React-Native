@@ -1,14 +1,14 @@
 import React, { useState } from "react";
 import {
-  View,
-  Text,
   Image,
-  ScrollView,
   Pressable,
+  ScrollView,
   StyleSheet,
+  Text,
+  View,
 } from "react-native";
 
-/* ── 9 gambar utama ── */
+
 const mainImages = [
   require("../assets/images/gm1.png"),
   require("../assets/images/gm2.png"),
@@ -38,7 +38,7 @@ export default function InteractiveGalleryScreen() {
   const [toggled, setToggled] = useState<boolean[]>(Array(9).fill(false));
   const [scales, setScales] = useState<number[]>(Array(9).fill(1));
 
-  const imageSize = 80; // ukuran awal
+  const imageSize = 80;
 
   const handleImagePress = (index: number) => {
     setToggled((prev) => {
@@ -49,29 +49,52 @@ export default function InteractiveGalleryScreen() {
 
     setScales((prev) => {
       const next = [...prev];
-      next[index] = Math.min(prev[index] * 1.2, 2); // maksimal 2x
+      next[index] = Math.min(prev[index] * 1.2, 2);
       return next;
     });
   };
 
-  // Grid 3 kolom x 3 baris: index 0-8
   const columns = [0, 1, 2].map((col) =>
     [0, 1, 2].map((row) => col + row * 3)
   );
 
+  // ── Data 10 Nama & 10 Font ──
+  const names = [
+    "MUH FIKRIR MAULANA",
+    "MUHAMMAD HASRADDIN HASNAN",
+    "Muhammad Dzulfikar Hidayat",
+    "AHMAD YANI",
+    "Rosfika Awalia",
+    "YOGI A. AMMAH",
+    "Usran",
+    "Rika Armayani",
+    "ANNAS URBACH NINGRUM",
+    "Besse Taleha",
+  ];
+
+  const fonts = [
+    "ZillaSlab-Regular",
+    "Slabo27px-Regular",
+    "ShareTech-Regular",
+    "Rowdies-Regular",
+    "EduQLDHand-Regular",
+    "Rubik-Variable",
+    "PlusJakartaSans-Variable",
+    "Nunito-Variable",
+    "Mulish-Variable",
+    "Lexend-Variable",
+  ];
+
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
-      {/* Header identitas */}
+      {/* Header Identitas */}
       <View style={styles.headerDecoration} />
-
       <View style={styles.infoPanel}>
         <Text style={styles.nameText}>YOGI A.AMMAH</Text>
       </View>
-
       <View style={styles.idBox}>
         <Text style={styles.idText}>105841108222</Text>
       </View>
-
       <View style={styles.profileImagesRow}>
         <Image
           source={{
@@ -89,7 +112,6 @@ export default function InteractiveGalleryScreen() {
 
       {/* Grid Gambar */}
       <Text style={styles.headerText}>Grid 3×3</Text>
-
       <View style={styles.row}>
         {columns.map((col, colIdx) => (
           <View key={colIdx} style={styles.column}>
@@ -115,6 +137,17 @@ export default function InteractiveGalleryScreen() {
           </View>
         ))}
       </View>
+
+      {/* 10 Nama + 10 Font */}
+      <Text style={styles.headerText}>10 Nama dengan 10 Font</Text>
+      {names.map((name, index) => (
+        <View key={index} style={styles.nameBox}>
+          <Text style={[styles.namePreview, { fontFamily: fonts[index] }]}>
+            {name}
+          </Text>
+          <Text style={styles.fontLabel}>({fonts[index]})</Text>
+        </View>
+      ))}
     </ScrollView>
   );
 }
@@ -124,9 +157,8 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     alignItems: "center",
     paddingVertical: 20,
+    backgroundColor: "#f9f9f9",
   },
-
-  /* Header Identitas */
   headerDecoration: {
     width: 0,
     height: 0,
@@ -164,6 +196,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderRadius: 25,
     paddingHorizontal: 20,
+    marginBottom: 20,
   },
   idText: {
     fontSize: 20,
@@ -173,8 +206,7 @@ const styles = StyleSheet.create({
   },
   profileImagesRow: {
     flexDirection: "row",
-    marginTop: 20,
-    marginBottom: 20,
+    marginBottom: 30,
   },
   profileImage: {
     width: 120,
@@ -182,29 +214,43 @@ const styles = StyleSheet.create({
     marginHorizontal: 5,
     borderRadius: 10,
   },
-
-  /* Grid Gambar */
   headerText: {
     fontSize: 18,
     fontWeight: "bold",
-    marginBottom: 15,
+    marginVertical: 15,
   },
   row: {
     flexDirection: "row",
     justifyContent: "center",
     gap: 5,
     overflow: "visible",
-    position: "relative",
   },
   column: {
     flexDirection: "column",
     marginHorizontal: 3,
-    overflow: "visible",
-    position: "relative",
   },
   image: {
     marginVertical: 3,
     borderRadius: 6,
     backgroundColor: "#eee",
+  },
+  nameBox: {
+    
+    marginVertical: 10,
+    padding: 12,
+    borderRadius: 8,
+    width: "90%",
+    alignItems: "center",
+    
+    elevation: 2,
+  },
+  namePreview: {
+    fontSize: 22,
+    textAlign: "center",
+  },
+  fontLabel: {
+    fontSize: 12,
+    color: "#777",
+    marginTop: 4,
   },
 });

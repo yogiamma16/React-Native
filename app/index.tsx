@@ -8,7 +8,56 @@ import {
   View,
 } from "react-native";
 
+type Student = {
+  name: string;
+  stambuk: number;
+};
 
+// Data nama dan stambuk
+const students: Student[] = [
+  { name: "MUH FIKRIR MAULANA", stambuk: 105841108201 },
+  { name: "MUHAMMAD HASRADDIN HASNAN", stambuk: 105841108202 },
+  { name: "Muhammad Dzulfikar Hidayat", stambuk: 105841108203 },
+  { name: "AHMAD YANI", stambuk: 105841108204 },
+  { name: "Rosfika Awalia", stambuk: 105841108205 },
+  { name: "YOGI A. AMMAH", stambuk: 105841108222 }, // target
+  { name: "Usran", stambuk: 105841108223 },
+  { name: "Rika Armayani", stambuk: 105841108224 },
+  { name: "ANNAS URBACH NINGRUM", stambuk: 105841108225 },
+  { name: "Besse Taleha", stambuk: 105841108226 },
+];
+
+// 10 font (5 statis + 5 variable)
+const fonts: string[] = [
+  "ZillaSlab-Regular",
+  "Slabo27px-Regular",
+  "ShareTech-Regular",
+  "Rowdies-Regular",
+  "EduQLDHand-Regular",
+  "Rubik-Variable",
+  "PlusJakartaSans-Variable",
+  "Nunito-Variable",
+  "Mulish-Variable",
+  "Lexend-Variable",
+];
+
+// Fungsi pengurutan 5 sebelum & 5 sesudah berdasarkan stambuk, secara melingkar
+function getOrderedStudents(students: Student[], targetStambuk: number): Student[] {
+  const index: number = students.findIndex((s: Student) => s.stambuk === targetStambuk);
+  if (index === -1) return [];
+
+  const before: Student[] = [];
+  const after: Student[] = [];
+
+  for (let i = 1; i <= 5; i++) {
+    before.push(students[(index - i + students.length) % students.length]);
+    after.push(students[(index + i) % students.length]);
+  }
+
+  return [...before.reverse(), students[index], ...after];
+}
+
+// Gambar
 const mainImages = [
   require("../assets/images/gm1.png"),
   require("../assets/images/gm2.png"),
@@ -21,7 +70,6 @@ const mainImages = [
   require("../assets/images/gm9.png"),
 ];
 
-/* ── 9 gambar alternatif ── */
 const altImages = [
   require("../assets/images/gm10.png"),
   require("../assets/images/gm11.png"),
@@ -37,8 +85,7 @@ const altImages = [
 export default function InteractiveGalleryScreen() {
   const [toggled, setToggled] = useState<boolean[]>(Array(9).fill(false));
   const [scales, setScales] = useState<number[]>(Array(9).fill(1));
-
-  const imageSize = 80;
+  const imageSize: number = 80;
 
   const handleImagePress = (index: number) => {
     setToggled((prev) => {
@@ -54,51 +101,25 @@ export default function InteractiveGalleryScreen() {
     });
   };
 
-  const columns = [0, 1, 2].map((col) =>
-    [0, 1, 2].map((row) => col + row * 3)
-  );
-
-  // ── Data 10 Nama & 10 Font ──
-  const names = [
-    "MUH FIKRIR MAULANA",
-    "MUHAMMAD HASRADDIN HASNAN",
-    "Muhammad Dzulfikar Hidayat",
-    "AHMAD YANI",
-    "Rosfika Awalia",
-    "YOGI A. AMMAH",
-    "Usran",
-    "Rika Armayani",
-    "ANNAS URBACH NINGRUM",
-    "Besse Taleha",
-  ];
-
-  const fonts = [
-    "ZillaSlab-Regular",
-    "Slabo27px-Regular",
-    "ShareTech-Regular",
-    "Rowdies-Regular",
-    "EduQLDHand-Regular",
-    "Rubik-Variable",
-    "PlusJakartaSans-Variable",
-    "Nunito-Variable",
-    "Mulish-Variable",
-    "Lexend-Variable",
-  ];
+  const columns = [0, 1, 2].map((col) => [0, 1, 2].map((row) => col + row * 3));
+  const ordered: Student[] = getOrderedStudents(students, 105841108222);
 
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
-      {/* Header Identitas */}
+      {/* Header */}
       <View style={styles.headerDecoration} />
       <View style={styles.infoPanel}>
-        <Text style={styles.nameText}>YOGI A.AMMAH</Text>
+        <Text style={styles.nameText}>YOGI A. AMMAH</Text>
       </View>
       <View style={styles.idBox}>
         <Text style={styles.idText}>105841108222</Text>
       </View>
+
+      {/* Profil */}
       <View style={styles.profileImagesRow}>
         <Image
           source={{
-            uri: "https://simak.unismuh.ac.id/upload/mahasiswa/105841108222_.jpg?1752430940",
+            uri: "https://simak.unismuh.ac.id/upload/mahasiswa/105841108222_.jpg",
           }}
           style={styles.profileImage}
         />
@@ -110,7 +131,7 @@ export default function InteractiveGalleryScreen() {
         />
       </View>
 
-      {/* Grid Gambar */}
+      {/* Grid */}
       <Text style={styles.headerText}>Grid 3×3</Text>
       <View style={styles.row}>
         {columns.map((col, colIdx) => (
@@ -118,9 +139,7 @@ export default function InteractiveGalleryScreen() {
             {col.map((imgIdx) => (
               <Pressable key={imgIdx} onPress={() => handleImagePress(imgIdx)}>
                 <Image
-                  source={
-                    toggled[imgIdx] ? altImages[imgIdx] : mainImages[imgIdx]
-                  }
+                  source={toggled[imgIdx] ? altImages[imgIdx] : mainImages[imgIdx]}
                   style={[
                     styles.image,
                     {
@@ -138,16 +157,23 @@ export default function InteractiveGalleryScreen() {
         ))}
       </View>
 
-      {/* 10 Nama + 10 Font */}
-      <Text style={styles.headerText}>10 Nama dengan 10 Font</Text>
-      {names.map((name, index) => (
+      {/* Nama dan Font */}
+      <Text style={styles.headerText}>10 Nama Sesuai Stambuk</Text>
+      {ordered.map((s: Student, index: number) => (
         <View key={index} style={styles.nameBox}>
-          <Text style={[styles.namePreview, { fontFamily: fonts[index] }]}>
-            {name}
+          <Text style={[styles.namePreview, { fontFamily: fonts[index % fonts.length] }]}>
+            {s.name}
           </Text>
-          <Text style={styles.fontLabel}>({fonts[index]})</Text>
+          <Text style={styles.fontLabel}>Stambuk: {s.stambuk}</Text>
         </View>
       ))}
+
+      {/* Screenshot */}
+      <Text style={styles.headerText}>Screenshot Tampilan</Text>
+      <Image
+        source={require("../assets/screenshots/tampilan_akhir.png")}
+        style={{ width: 320, height: 180, borderRadius: 8, marginBottom: 20 }}
+      />
     </ScrollView>
   );
 }
@@ -235,14 +261,13 @@ const styles = StyleSheet.create({
     backgroundColor: "#eee",
   },
   nameBox: {
-    
     marginVertical: 10,
     padding: 12,
     borderRadius: 8,
     width: "90%",
     alignItems: "center",
-    
     elevation: 2,
+    backgroundColor: "#fff",
   },
   namePreview: {
     fontSize: 22,

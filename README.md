@@ -1,7 +1,5 @@
 # Tugas Lab Aplikasi Komputasi Bergerak
 
-
-
 ## Cara Menjalankan Proyek
 1.  **Clone Repository:**
     ```bash
@@ -19,3 +17,14 @@
     npx expo start
     ```
 4.  Pindai QR code dengan aplikasi Expo Go di perangkat mobile Anda, atau buka di simulator/emulator.
+
+---
+
+## Screenshot Hasil Tampilan
+
+| Hasil Output |
+|--------------|
+| ![Screenshot Output](./assets/screenshots/tampilan_akhir.png) |
+
+<!-- Ganti path gambar sesuai dengan lokasi file screenshot kamu! -->
+

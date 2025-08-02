@@ -20,11 +20,3 @@
 
 ---
 
-## Screenshot Hasil Tampilan
-
-| Hasil Output |
-|--------------|
-| ![Screenshot Output](./assets/screenshots/tampilan_akhir.png) |
-
-<!-- Ganti path gambar sesuai dengan lokasi file screenshot kamu! -->
-

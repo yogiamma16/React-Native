@@ -1,4 +1,5 @@
-import { Stack } from "expo-router";
+// app/_layout.tsx
+import { Slot } from "expo-router";
 import { useFonts } from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
@@ -31,6 +32,6 @@ export default function RootLayout() {
     console.error("Font load error:", error);
     return <Text>Error loading fonts</Text>;
   }
-
-  return <Stack />;
+  
+  return <Slot />;
 }

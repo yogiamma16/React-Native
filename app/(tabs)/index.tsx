@@ -1,132 +1,88 @@
-import { View, Text, Image, StyleSheet, ScrollView, Platform } from "react-native";
 
-export default function HomeScreen() {
+import { Link } from "expo-router";
+import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { students } from "../../data/students";
+
+// Helper untuk ambil inisial dari nama
+function getInitials(name?: string) {
+  if (!name) return "?";
+  const parts = name
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean);
+  if (parts.length === 0) return "?";
+  // Ambil 2 huruf awal dari 2 kata pertama, atau 1 kalau cuma satu kata
+  const letters = parts.slice(0, 2).map((p) => p[0]);
+  return letters.join("").toUpperCase();
+}
+
+export default function Home() {
   return (
-    <ScrollView contentContainerStyle={styles.bg}>
-      <View style={styles.cardOuter}>
-        <View style={styles.neoCard}>
-          <Image
-            source={require("../../assets/images/unismuh.jpg")}
-            style={styles.image}
-            resizeMode="cover"
-          />
-          <Text style={styles.uniName}>
-            Universitas{"\n"}Muhammadiyah Makassar
-          </Text>
-          <View style={styles.badgeRow}>
-            <View style={styles.badge}>
-              <Text style={styles.badgeText}>Makassar</Text>
-            </View>
-          </View>
-          <View style={styles.section}>
-            <Text style={styles.label}>Lokasi</Text>
-            <Text style={styles.text}>
-              Jl. Sultan Alauddin No.259, Makassar, Sulawesi Selatan
-            </Text>
-          </View>
-          <View style={styles.section}>
-            <Text style={styles.label}>Deskripsi Singkat</Text>
-            <Text style={styles.text}>
-              Unismuh Makassar adalah salah satu perguruan tinggi swasta terkemuka di Indonesia Timur, berlandaskan nilai-nilai Islam dan berkomitmen mencetak generasi unggul, berilmu, dan berakhlak mulia.
-            </Text>
-          </View>
-        </View>
-      </View>
-    </ScrollView>
+    <View style={styles.container}>
+      <FlatList
+        data={students}
+        keyExtractor={(it) => it.nim}
+        ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
+        renderItem={({ item }) => (
+          <Link
+            href={{ pathname: "/student/[nim]", params: { nim: item.nim } }}
+            asChild
+          >
+            <Pressable style={styles.row}>
+              {/* Avatar Inisial */}
+              <View style={styles.avatar}>
+                <Text style={styles.avatarText}>{getInitials(item.name)}</Text>
+              </View>
+
+              <View style={{ flex: 1 }}>
+                <Text style={styles.name}>{item.name}</Text>
+                {/* <Text style={styles.nim}>NIM: {item.nim}</Text> */}
+              </View>
+
+              {/* Chevron tetap Ionicons */}
+              <Ionicons name="chevron-forward" size={20} color="#999" />
+            </Pressable>
+          </Link>
+        )}
+        contentContainerStyle={{ paddingVertical: 8 }}
+      />
+    </View>
   );
 }
 
+const AVATAR_SIZE = 40;
+
 const styles = StyleSheet.create({
-  bg: {
-    flexGrow: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#e3f0ff",
-    paddingVertical: 36,
-    minHeight: "100%",
-  },
-  cardOuter: {
-    width: "96%",
-    alignItems: "center",
-  },
-  neoCard: {
-    backgroundColor: "#f6fbff",
-    borderRadius: 32,
-    padding: 26,
-    alignItems: "center",
-    width: "100%",
-    maxWidth: 380,
-    // NeoMorphism shadow
-    ...Platform.select({
-      ios: {
-        shadowColor: "#8ab6f9",
-        shadowOffset: { width: 0, height: 6 },
-        shadowOpacity: 0.16,
-        shadowRadius: 20,
-      },
-      android: {
-        elevation: 12,
-      },
-    }),
-  },
-  image: {
-    width: "100%",
-    height: 175,
-    borderRadius: 24,
-    marginBottom: 20,
-    borderWidth: 2.5,
-    borderColor: "#1976d2",
-  },
-  uniName: {
-    fontSize: 27,
-    fontWeight: "bold",
-    color: "#1976d2",
-    textAlign: "center",
-    letterSpacing: 1,
-    lineHeight: 32,
-    marginBottom: 8,
-    fontFamily: Platform.OS === "ios" ? "AvenirNext-DemiBold" : "sans-serif-medium",
-  },
-  badgeRow: {
+  container: { flex: 1, backgroundColor: "#fff", paddingHorizontal: 16 },
+  row: {
     flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    backgroundColor: "#F8FAFC",
+    paddingVertical: 14,
+    paddingHorizontal: 10,
+    borderRadius: 12,
+    shadowColor: "#000",
+    shadowOpacity: 0.06,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 2
+  },
+  avatar: {
+    width: AVATAR_SIZE,
+    height: AVATAR_SIZE,
+    borderRadius: AVATAR_SIZE / 2,
+    backgroundColor: "#1565c0",
     justifyContent: "center",
-    marginBottom: 16,
-    marginTop: 2,
+    alignItems: "center"
   },
-  badge: {
-    backgroundColor: "#c6e1ff",
-    paddingHorizontal: 16,
-    paddingVertical: 4,
-    borderRadius: 14,
-    marginHorizontal: 5,
-    shadowColor: "#1976d2",
-    shadowOpacity: 0.10,
-    shadowRadius: 4,
-    shadowOffset: { width: 0, height: 2 },
-    borderWidth: 1,
-    borderColor: "#bbdefb",
-  },
-  badgeText: {
-    color: "#1976d2",
-    fontWeight: "bold",
-    fontSize: 14,
-    letterSpacing: 0.4,
-  },
-  section: {
-    width: "100%",
-    marginBottom: 12,
-  },
-  label: {
-    fontWeight: "700",
-    color: "#1976d2",
+  avatarText: {
+    color: "#fff",
     fontSize: 16,
-    marginBottom: 4,
-    letterSpacing: 0.5,
+    fontWeight: "700",
+    letterSpacing: 0.5
   },
-  text: {
-    color: "#38404b",
-    fontSize: 15,
-    lineHeight: 22,
-    textAlign: "justify",
-  },
+  name: { fontSize: 16, fontWeight: "600", color: "#222" },
+  nim: { fontSize: 12, opacity: 0.6, marginTop: 2 }
 });

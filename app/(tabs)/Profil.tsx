@@ -1,4 +1,4 @@
-import { View, Text, Image, StyleSheet, Platform } from "react-native";
+import { Image, Platform, StyleSheet, Text, View } from "react-native";
 
 export default function ProfilScreen() {
   return (
@@ -19,7 +19,7 @@ export default function ProfilScreen() {
         <View style={styles.infoBox}>
           <Info label="Kelas" value="6C" />
           <Info label="Jurusan" value="Informatika" />
-          <Info label="Fakultas" value="Fakultas Teknik" />
+          <Info label="Fakultas" value="Teknik" />
         </View>
 
         <Text style={styles.footerNote}>

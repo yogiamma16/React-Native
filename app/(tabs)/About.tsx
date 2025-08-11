@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView, Platform } from "react-native";
 export default function AboutScreen() {
   return (
     <ScrollView contentContainerStyle={styles.bg}>
+      <View style={styles.headerGradient} />
       <View style={styles.card}>
         <Text style={styles.title}>Tentang Aplikasi</Text>
         <Text style={styles.desc}>
@@ -13,7 +14,7 @@ export default function AboutScreen() {
         <View style={styles.section}>
           <Text style={styles.subtitle}>Fungsi Setiap Halaman:</Text>
           <View style={styles.bulletBox}>
-            <Bullet title="Home" desc="Menampilkan informasi tentang Unismuh Makassar beserta gambar pendukung." />
+            <Bullet title="Home" desc="Menampilkan Daftar Mahasiswa." />
             <Bullet title="About" desc="Menjelaskan tujuan dan fungsi aplikasi, serta deskripsi singkat tiap halaman." />
             <Bullet title="Profil" desc="Menampilkan data diri pribadi dan foto profil." />
           </View>
@@ -37,12 +38,23 @@ function Bullet({ title, desc }: { title: string; desc: string }) {
 
 const styles = StyleSheet.create({
   bg: {
-    flexGrow: 1,
-    backgroundColor: "#e3f0ff",
+    flex: 1,
+    backgroundColor: "#eaf4ff",
     alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: 40,
+    justifyContent: "flex-start",
     minHeight: "100%",
+  },
+  headerGradient: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 150,
+    backgroundColor: "#1976d2",
+    borderBottomLeftRadius: 32,
+    borderBottomRightRadius: 32,
+    opacity: 0.16,
+    zIndex: 0,
   },
   card: {
     backgroundColor: "#fff",

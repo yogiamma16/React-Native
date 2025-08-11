@@ -1,5 +1,4 @@
-// app/_layout.tsx
-import { Slot } from "expo-router";
+import { Stack } from "expo-router";
 import { useFonts } from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
@@ -32,6 +31,11 @@ export default function RootLayout() {
     console.error("Font load error:", error);
     return <Text>Error loading fonts</Text>;
   }
-  
-  return <Slot />;
+
+  return (
+    <Stack screenOptions={{ headerTitleAlign: "center" }}>
+      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      <Stack.Screen name="student/[nim]" options={{ title: "Detail Mahasiswa" }} />
+    </Stack>
+  );
 }
